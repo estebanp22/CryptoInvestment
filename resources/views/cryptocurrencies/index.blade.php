@@ -1,81 +1,98 @@
 @extends('layouts.app')
 
 @section('content')
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
     <div class="container">
+        <a href="{{ route('cryptocurrencies.create') }}" class="btn btn-success mb-4">Agregar criptomoneda</a>
         <button id="updateBtn" class="btn btn-primary mb-4">Actualizar Precios</button>
-        <div id="cryptocurrencies-container"></div>
 
-        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-        <script>
-            // Actualización periódica cada 1 minuto (60000 milisegundos)
-            setInterval(function() {
-                $.get('/cryptocurrencies', function(data) {
-                    $('#cryptocurrencies-container').html(data);
-                });
-            }, 60000); // 1 minuto
+        <form id="searchForm" class="mb-4">
+            <input type="text" class="form-control" id="searchInput" placeholder="Buscar criptomoneda por nombre o símbolo...">
+        </form>
 
-            $('#updateBtn').click(function() {
-                $.get('/cryptocurrencies', function(data) {
-                    $('#cryptocurrencies-container').html(data);
+        <div id="cryptocurrencies-container">
+            @include('partials.cryptocurrencies', ['cryptocurrencies' => $cryptocurrencies])
+        </div>
+    </div>
+
+
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <script>
+        function loadCryptos() {
+            const search = $('#searchInput').val().toLowerCase(); // Captura lo que el usuario escribió
+
+            $.get('/cryptocurrencies', function(data) {
+                $('#cryptocurrencies-container').html(data);
+                initCharts();
+
+                // Reaplicar el filtro después de recargar el contenido
+                $('.card').each(function() {
+                    const name = $(this).find('.card-title').text().toLowerCase();
+                    $(this).toggle(name.includes(search));
                 });
             });
-        </script>
+        }
 
 
+        function initCharts() {
+            document.querySelectorAll('canvas[id^="chart-"]').forEach(canvas => {
+                let ctx = canvas.getContext('2d');
+                let data = JSON.parse(canvas.dataset.chartData);
+                let labels = JSON.parse(canvas.dataset.chartLabels);
 
+                let borderColor = data[0] < data[data.length - 1] ? 'rgba(0, 128, 0, 1)' : 'rgba(255, 0, 0, 1)';
 
-
-        <h1 class="my-4">Criptomonedas</h1>
-
-        <!-- Tarjetas de criptomonedas -->
-        <div class="row">
-            @foreach($cryptocurrencies as $crypto)
-                <div class="col-md-4">
-                    <div class="card mb-4">
-                        <div class="card-header">
-                            <h4 class="card-title">{{ $crypto->name }} ({{ $crypto->symbol }})</h4>
-                        </div>
-                        <div class="card-body">
-                            @if($crypto->latestPrice) <!-- Verifica si latestPrice existe -->
-                            <p><strong>Price:</strong> ${{ number_format($crypto->latestPrice->price, 2) }}</p>
-                            <p><strong>24h Change:</strong> {{ number_format($crypto->latestPrice->percent_change_24h, 4) }}%</p>
-                            <p><strong>Volume:</strong> ${{ number_format($crypto->latestPrice->volume_24h, 2) }}</p>
-                            <p><strong>Last Update:</strong> {{ $crypto->latestPrice->recorded_at->diffForHumans() }}</p>
-                            @else
-                                <p>No data available</p> <!-- Muestra un mensaje si no hay datos -->
-                            @endif
-                        </div>
-                    </div>
-                </div>
-            @endforeach
-        </div>
-
-        <!-- Gráfico de precios -->
-        <canvas id="cryptoChart" width="400" height="200"></canvas>
-
-        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-        <script>
-            var ctx = document.getElementById('cryptoChart').getContext('2d');
-            var cryptoChart = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: @json($cryptocurrencies->pluck('name')), // Nombres de criptos como etiquetas
-                    datasets: [{
-                        label: 'Precio',
-                        data: @json($cryptocurrencies->pluck('latestPrice.price')), // Precios actuales
-                        borderColor: 'rgba(75, 192, 192, 1)',
-                        fill: false,
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    scales: {
-                        y: {
-                            beginAtZero: false
+                new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Precio histórico',
+                            data: data,
+                            borderColor: borderColor,
+                            fill: false,
+                            tension: 0.2
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        animation: false,
+                        plugins: {
+                            legend: { display: false }
+                        },
+                        scales: {
+                            y: { beginAtZero: false }
                         }
                     }
-                }
+                });
             });
-        </script>
-    </div>
+        }
+
+        $('#updateBtn').click(function() {
+            $.get('/cryptocurrencies/update', function() {
+                loadCryptos();
+            });
+        });
+
+        // Buscar criptomonedas
+        $('#searchInput').on('input', function() {
+            const search = $(this).val().toLowerCase();
+            $('.card').each(function() {
+                const name = $(this).find('.card-title').text().toLowerCase();
+                $(this).toggle(name.includes(search));
+            });
+        });
+
+        // Forzar la primera actualización apenas carga la página
+        $.get('/cryptocurrencies/update', function() {
+            loadCryptos();
+        });
+
+        setInterval(loadCryptos, 1000);
+        setInterval(() => $.get('/cryptocurrencies/update'), 10000);
+    </script>
+
 @endsection

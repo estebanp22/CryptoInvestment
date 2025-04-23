@@ -4,16 +4,18 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Cryptocurrency extends Model
 {
   use HasFactory;
 
-    protected $fillable = ['symbol', 'name'];
+    protected $fillable = [
+        'name', 'symbol', 'logo_url', 'cmc_id', 'slug',
+    ];
 
-    // Relación uno a muchos (cryptocurrency tiene muchos precios)
-    public function prices()
-{
+    public function prices(): HasMany
+    {
     return $this->hasMany(CryptocurrencyPrice::class);
 }
 
@@ -22,7 +24,6 @@ class Cryptocurrency extends Model
         return $this->hasOne(CryptocurrencyPrice::class)->latest();
     }
 
-    // Relación muchos a muchos con usuarios (favoritos)
     public function users()
 {
     return $this->belongsToMany(User::class, 'favorites');

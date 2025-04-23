@@ -49,7 +49,43 @@ class CryptocurrencySeeder extends Seeder
                 'slug' => 'ripple',
                 'logo_url' => 'https://s2.coinmarketcap.com/static/img/coins/64x64/52.png'
             ],
+            [
+                'name' => 'Polkadot',
+                'symbol' => 'DOT',
+                'cmc_id' => 6636,
+                'slug' => 'polkadot',
+                'logo_url' => 'https://s2.coinmarketcap.com/static/img/coins/64x64/6636.png'
+            ],
+            [
+                'name' => 'Litecoin',
+                'symbol' => 'LTC',
+                'cmc_id' => 2,
+                'slug' => 'litecoin',
+                'logo_url' => 'https://s2.coinmarketcap.com/static/img/coins/64x64/2.png'
+            ],
+            [
+                'name' => 'Chainlink',
+                'symbol' => 'LINK',
+                'cmc_id' => 1975,
+                'slug' => 'chainlink',
+                'logo_url' => 'https://s2.coinmarketcap.com/static/img/coins/64x64/1975.png'
+            ],
+            [
+                'name' => 'Dogecoin',
+                'symbol' => 'DOGE',
+                'cmc_id' => 74,
+                'slug' => 'dogecoin',
+                'logo_url' => 'https://s2.coinmarketcap.com/static/img/coins/64x64/74.png'
+            ],
+            [
+                'name' => 'Shiba Inu',
+                'symbol' => 'SHIB',
+                'cmc_id' => 5994,
+                'slug' => 'shiba-inu',
+                'logo_url' => 'https://s2.coinmarketcap.com/static/img/coins/64x64/5994.png'
+            ]
         ];
+
 
 
 

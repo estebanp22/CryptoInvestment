@@ -16,7 +16,7 @@ return new class extends Migration
             $table->integer('cmc_id');
             $table->string('name');
             $table->string('symbol');
-            $table->string('slug');
+            $table->string('slug')->nullable();
             $table->text('logo_url');
             $table->timestamps();
         });
