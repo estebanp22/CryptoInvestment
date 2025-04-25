@@ -14,6 +14,6 @@ Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/cryptocurrencies', [CryptocurrencyController::class, 'index'])->name('cryptocurrencies.index');
-    Route::get('/cryptocurrencies/update', [CryptocurrencyController::class, 'updatePrices'])->name('cryptocurrencies.update');
+    Route::get('/cryptocurrencies/update', [CryptocurrencyController::class, 'updatePrices']);
     Route::resource('cryptocurrencies', CryptocurrencyController::class);
 });

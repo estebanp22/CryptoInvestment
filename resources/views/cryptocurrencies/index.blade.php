@@ -16,8 +16,6 @@
         </div>
     </div>
 
-
-
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
     <script>
@@ -35,7 +33,6 @@
                 });
             });
         }
-
 
         function initCharts() {
             document.querySelectorAll('canvas[id^="chart-"]').forEach(canvas => {
@@ -72,9 +69,12 @@
         }
 
         $('#updateBtn').click(function() {
-            $.get('/cryptocurrencies/update', function() {
-                loadCryptos();
-            });
+            $.get('/cryptocurrencies/update')
+                .done(res => {
+                    console.log('✅ Precios actualizados', res);
+                    loadCryptos();
+                })
+                .fail(err => console.error('❌ Error actualizando precios:', err));
         });
 
         // Buscar criptomonedas
@@ -87,12 +87,19 @@
         });
 
         // Forzar la primera actualización apenas carga la página
-        $.get('/cryptocurrencies/update', function() {
-            loadCryptos();
-        });
+        $.get('/cryptocurrencies/update')
+            .done(() => loadCryptos())
+            .fail(err => console.error('❌ Error en la actualización inicial:', err));
 
+        // Actualizar la página cada segundo
         setInterval(loadCryptos, 1000);
-        setInterval(() => $.get('/cryptocurrencies/update'), 10000);
+
+        // Intervalo que actualiza los precios cada 10 segundos
+        setInterval(() => {
+            $.get('/cryptocurrencies/update')
+                .done(res => console.log('✅ Precios actualizados', res))
+                .fail(err => console.error('❌ Error actualizando precios:', err));
+        }, 10000);
     </script>
 
 @endsection
